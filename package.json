@@ -1,24 +1,20 @@
 {
   "name": "robbiejr-bot-v2",
-  "version": "2.0.0",
-  "description": "The most advanced WhatsApp bot ever created - ROBBIEJR BOT V2",
+  "version": "2.0.1",
+  "description": "Ultimate WhatsApp Bot with 6-digit pairing",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "whatsapp",
-    "bot",
-    "robbiejr",
-    "automation"
-  ],
-  "author": "Your Name",
-  "license": "ISC",
   "dependencies": {
     "axios": "^1.6.7",
+    "dotenv": "^16.3.1",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.24.0",
-    "dotenv": "^16.3.1"
+    "whatsapp-web.js": "^1.24.0"
+  },
+  "engines": {
+    "node": ">=16.x"
   }
 }
