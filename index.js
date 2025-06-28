@@ -1,34 +1,39 @@
 require('dotenv').config();
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
-// Improved 6-digit pairing code generator
-const generatePairingCode = () => Math.floor(100000 + Math.random() * 900000);
+// ✅ 8-Digit Pairing Code Generator (10000000 - 99999999)
+const generatePairingCode = () => Math.floor(10000000 + Math.random() * 90000000);
 
 const BOT_CONFIG = {
     name: "ROBBIEJR BOT V2",
-    version: "2.0.1",
+    version: "2.1.0",
     adminNumber: process.env.ADMIN_NUMBER || "254718606619",
     weatherAPIKey: process.env.WEATHER_API_KEY,
     prefix: "!",
-    pairingCode: generatePairingCode()
+    pairingCode: generatePairingCode() // Now 8 digits!
 };
 
-// Auto-restart handler
+// Auto-restart system (5 max attempts)
 let restartCount = 0;
 const MAX_RESTARTS = 5;
-const RESTART_DELAY = 5000; // 5 seconds
+const RESTART_DELAY = 10000; // 10 seconds
 
 function startBot() {
     console.log(`
-██████╗  ██████╗ ██████╗ ██████╗ ██╗███████╗██████╗     ██████╗  ██████╗ ████████╗
-██╔══██╗██╔═══██╗██╔══██╗██╔══██╗██║██╔════╝██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝
-██████╔╝██║   ██║██████╔╝██████╔╝██║█████╗  ██████╔╝    ██║  ██║██║   ██║   ██║   
-██╔══██╗██║   ██║██╔══██╗██╔══██╗██║██╔══╝  ██╔══██╗    ██║  ██║██║   ██║   ██║   
-██║  ██║╚██████╔╝██║  ██║██████╔╝██║███████╗██║  ██║    ██████╔╝╚██████╔╝   ██║   
-╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚═╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝   
-                                                                      VERSION ${BOT_CONFIG.version}
+╔════════════════════════════════════════════╗
+║                                            ║
+║   ██████╗  ██████╗ ██████╗ ██████╗ ██╗    ║
+║   ██╔══██╗██╔═══██╗██╔══██╗██╔══██╗██║    ║
+║   ██████╔╝██║   ██║██████╔╝██████╔╝██║    ║
+║   ██╔══██╗██║   ██║██╔══██╗██╔══██╗██║    ║
+║   ██║  ██║╚██████╔╝██║  ██║██████╔╝██║    ║
+║   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚═╝    ║
+║                                            ║
+║       ROBBIEJR BOT V2 - v${BOT_CONFIG.version}         ║
+║                                            ║
+╚════════════════════════════════════════════╝
 `);
 
     const client = new Client({
@@ -37,57 +42,76 @@ function startBot() {
             headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         },
-        webVersionCache: { type: 'remote', remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html' }
+        webVersionCache: { 
+            type: 'remote', 
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html' 
+        }
     });
 
+    // ✅ 8-Digit Pairing Code Display
     client.on('qr', qr => {
         qrcode.generate(qr, { small: true });
         console.log(`
-┌──────────────────────────────┐
-│                              │
-│  🔒 6-Digit Pairing Code:     │
-│                              │
-│         ${BOT_CONFIG.pairingCode}         │
-│                              │
-│  Expires in 3 minutes        │
-│                              │
-└──────────────────────────────┘
+┌──────────────────────────────────┐
+│                                  │
+│  🔐 *WHATSAPP PAIRING REQUIRED*  │
+│                                  │
+│      CODE: ${BOT_CONFIG.pairingCode}      │
+│                                  │
+│  ⏳ Expires in 3 minutes         │
+│                                  │
+└──────────────────────────────────┘
 `);
     });
 
     client.on('ready', () => {
         restartCount = 0; // Reset restart counter
-        console.log('✅ ROBBIEJR BOT V2 is ready!');
-        client.sendMessage(`${BOT_CONFIG.adminNumber}@c.us`, `🤖 *${BOT_CONFIG.name}* v${BOT_CONFIG.version} is now online!\nPairing Code: ${BOT_CONFIG.pairingCode}`);
+        console.log('✅ ROBBIEJR BOT V2 is ONLINE!');
+        client.sendMessage(
+            `${BOT_CONFIG.adminNumber}@c.us`, 
+            `*🤖 ${BOT_CONFIG.name} v${BOT_CONFIG.version}*\n\n` +
+            `🔑 *Pairing Code:* ${BOT_CONFIG.pairingCode}\n` +
+            `🔄 *Restarts:* ${restartCount}/${MAX_RESTARTS}`
+        );
     });
 
+    // Auto-restart on disconnect
     client.on('disconnected', (reason) => {
         console.log(`🚫 Disconnected: ${reason}`);
         if (restartCount < MAX_RESTARTS) {
             restartCount++;
-            console.log(`♻️ Attempting restart ${restartCount}/${MAX_RESTARTS}...`);
+            console.log(`♻️ Restarting (${restartCount}/${MAX_RESTARTS})...`);
             setTimeout(startBot, RESTART_DELAY);
         } else {
-            console.log('❌ Max restarts reached. Please check for errors.');
+            console.log('❌ MAX RESTARTS REACHED. Manual restart required.');
         }
     });
 
-    // Add your message handlers here (weather, kick, etc.)
-    client.on('message', msg => {
-        if (msg.body === '!ping') {
-            msg.reply('🏓 Pong!');
+    // Command handler
+    client.on('message', async msg => {
+        if (msg.body.startsWith(BOT_CONFIG.prefix)) {
+            const cmd = msg.body.split(' ')[0].substring(1).toLowerCase();
+            
+            switch(cmd) {
+                case 'ping':
+                    msg.reply('🏓 Pong!');
+                    break;
+                case 'paircode':
+                    msg.reply(`🔑 Current Pairing Code: ${BOT_CONFIG.pairingCode}`);
+                    break;
+                // Add more commands...
+            }
         }
-        // Add other command handlers
     });
 
     client.initialize();
 }
 
-// Start the bot
+// Start bot
 startBot();
 
-// Handle process termination
+// Handle shutdown
 process.on('SIGINT', () => {
-    console.log('🚦 Shutting down gracefully...');
+    console.log('🚦 Shutting down...');
     process.exit();
 });
