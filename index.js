@@ -1,3 +1,13 @@
+// Add this to the very top of index.js
+process.on('SIGINT', () => {
+    console.log('🚦 Received SIGINT. Shutting down gracefully...');
+    client.destroy().then(() => process.exit());
+});
+
+process.on('SIGTERM', () => {
+    console.log('🚦 Received SIGTERM. Shutting down gracefully...');
+    client.destroy().then(() => process.exit());
+});
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const axios = require('axios');
