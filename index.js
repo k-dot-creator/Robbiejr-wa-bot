@@ -9,7 +9,7 @@ const generatePairingCode = () => Math.floor(10000000 + Math.random() * 90000000
 const BOT_CONFIG = {
     name: "ROBBIEJR BOT V2",
     version: "2.2.0",
-    adminNumber: process.env.ADMIN_NUMBER || "254718606619",
+    adminNumber: process.env.ADMIN_NUMBER || "254115258178",
     weatherAPIKey: process.env.WEATHER_API_KEY,
     prefix: "!",
     pairingCode: generatePairingCode() // Initial code
